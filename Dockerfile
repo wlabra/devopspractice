@@ -1,3 +1,4 @@
-FROM nginx:alpine
-COPY index.html /usr/share/nginx/html/index.html
+FROM php:8.2-apache
+RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+COPY . /var/var/www/html
 EXPOSE 80
