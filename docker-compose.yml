@@ -1,0 +1,14 @@
+services:
+  web-mejorada:
+    build: .
+    ports:
+      - "8081:80"
+    restart: always
+  db:
+    image: mariadb:10.11
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: "password-secreto"
+      MARIADB_DATABASE: "mi_blog"
+    volumes:
+      - ./datos-db:/var/lib/mysql
