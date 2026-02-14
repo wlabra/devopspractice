@@ -8,7 +8,7 @@ services:
     image: mariadb:10.11
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD: "password-secreto"
+      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MARIADB_DATABASE: "mi_blog"
     volumes:
       - /home/devops-admin/data/mariadb:/var/lib/mysql

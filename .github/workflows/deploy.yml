@@ -11,5 +11,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Levantar la App con Docker
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_ROOT_PASSWORD }}
         run: |
           docker compose up -d --build
