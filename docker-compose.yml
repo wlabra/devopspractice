@@ -17,3 +17,28 @@ services:
       MARIADB_DATABASE: "mi_blog"
     volumes:
       - /home/devops-admin/data/mariadb:/var/lib/mysql
+
+  monitoring:
+    image: netdata/netdata:latest
+    container_name: netdata
+    restart: always
+    ports:
+      - "19999:19999"
+    cap_add:
+      - SYS_PTRACE
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - netdataconfig:/etc/netdata
+      - netdatalib:/var/lib/netdata
+      - netdatacache:/var/cache/netdata
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /etc/os-release:/host/etc/os-release:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro # <--- LA MAGIA ESTÁ AQUÍ
+
+volumes: # No olvides añadir esta sección al final del archivo si no la tienes
+  netdataconfig:
+  netdatalib:
+  netdatacache:
