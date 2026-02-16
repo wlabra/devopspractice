@@ -45,7 +45,7 @@ services:
       - /etc/os-release:/host/etc/os-release:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro # <--- LA MAGIA ESTÁ AQUÍ
 
-  volumes: # No olvides añadir esta sección al final del archivo si no la tienes
-    netdataconfig:
-    netdatalib:
-    netdatacache:
+volumes: # No olvides añadir esta sección al final del archivo si no la tienes
+  netdataconfig:
+  netdatalib:
+  netdatacache:
