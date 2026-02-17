@@ -1,0 +1,32 @@
+---
+- name: Configurar mi laboratorio DevOps desde cero
+  hosts: servidores_ubuntu
+  become: yes
+
+  tasks:
+    - name: Actualizar el sistema (apt update)
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Instalar dependencias basicas
+      apt:
+        name: [apt-transport-https, ca-certificates, curl, software-properties-common, git]
+        state: present
+
+    - name: Instalar Docker (La forma rápida)
+      shell: curl -sSL https://get.docker.com | sh
+      args:
+        creates: /usr/bin/docker
+
+    - name: Asegurar que el usuario pueda usar docker sin sudo
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Clonar mi repositorio de prácticas
+      git:
+        repo: 'https://github.com/wlabra/devopspractice.git'
+        dest: /home/{{ ansible_user }}/devopspractice
+        force: yes
