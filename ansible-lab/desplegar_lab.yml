@@ -1,32 +1,48 @@
 ---
 - name: Configurar mi laboratorio DevOps desde cero
   hosts: servidores_ubuntu
-  become: yes
+  become: true
 
   tasks:
     - name: Actualizar el sistema (apt update)
-      apt:
-        update_cache: yes
+      ansible.builtin.apt: # <--- FQCN
+        update_cache: true
         upgrade: dist
 
-    - name: Instalar dependencias basicas
-      apt:
-        name: [apt-transport-https, ca-certificates, curl, software-properties-common, git]
+    - name: Instalar dependencias básicas
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - git
         state: present
 
-    - name: Instalar Docker (La forma rápida)
-      shell: curl -sSL https://get.docker.com | sh
-      args:
-        creates: /usr/bin/docker
+    - name: Descargar script de instalación de Docker
+      ansible.builtin.get_url: # <--- Usamos el módulo correcto en vez de curl
+        url: https://get.docker.com
+        dest: /tmp/get-docker.sh
+        mode: '0755'
 
-    - name: Asegurar que el usuario pueda usar docker sin sudo
-      user:
+    - name: Ejecutar script de Docker
+      ansible.builtin.shell: |
+        set -o pipefail
+        /tmp/get-docker.sh
+      args:
+        executable: /bin/bash
+        creates: /usr/bin/docker
+      register: docker_install # Para que el linter sepa que rastreamos el resultado
+
+    - name: Asegurar que el usuario pueda usar Docker sin sudo
+      ansible.builtin.user: # <--- FQCN
         name: "{{ ansible_user }}"
         groups: docker
-        append: yes
+        append: true
 
     - name: Clonar mi repositorio de prácticas
-      git:
-        repo: 'https://github.com/wlabra/devopspractice.git'
-        dest: /home/{{ ansible_user }}/devopspractice
-        force: yes
+      ansible.builtin.git: # <--- FQCN
+        repo: 'https://github.com/TU_USUARIO/devopspractice.git'
+        dest: "/home/{{ ansible_user }}/devopspractice"
+        version: main # Especificar la rama ayuda a la idempotencia
+        force: true
