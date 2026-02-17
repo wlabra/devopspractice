@@ -42,11 +42,10 @@
 
     - name: Clonar mi repositorio de prácticas
       ansible.builtin.git: # <--- FQCN
-        repo: 'https://github.com/TU_USUARIO/devopspractice.git'
+        repo: 'https://github.com/wlabra/devopspractice.git'
         dest: "/home/{{ ansible_user }}/devopspractice"
         version: main # Especificar la rama ayuda a la idempotencia
         force: true
         accept_hostkey: true
       environment:
         GIT_TERMINAL_PROMPT: 0
-        
