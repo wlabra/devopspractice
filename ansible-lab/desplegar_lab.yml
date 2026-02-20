@@ -4,8 +4,13 @@
   become: true
 
   tasks:
+    - name: Eliminar carpeta antigua para evitar conflictos
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/mi-primera-app"
+        state: absent
+
     - name: Actualizar el sistema (apt update)
-      ansible.builtin.apt: # <--- FQCN
+      ansible.builtin.apt:
         update_cache: true
         upgrade: dist
 
@@ -17,10 +22,12 @@
           - curl
           - software-properties-common
           - git
+          - python3-pip
+          - python3-docker # Necesario para que Ansible hable con Docker
         state: present
 
     - name: Descargar script de instalación de Docker
-      ansible.builtin.get_url: # <--- Usamos el módulo correcto en vez de curl
+      ansible.builtin.get_url:
         url: https://get.docker.com
         dest: /tmp/get-docker.sh
         mode: '0755'
@@ -32,13 +39,21 @@
       args:
         executable: /bin/bash
         creates: /usr/bin/docker
-      register: docker_install # Para que el linter sepa que rastreamos el resultado
 
     - name: Asegurar que el usuario pueda usar Docker sin sudo
-      ansible.builtin.user: # <--- FQCN
+      ansible.builtin.user:
         name: "{{ ansible_user }}"
         groups: docker
         append: true
+
+    - name: Corregir propiedad de la carpeta destino (Pre-vuelo)
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/devopspractice"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        state: directory
+        recurse: yes
+      failed_when: false # Si la carpeta no existe aún, que no falle
 
     - name: Clonar mi repositorio de prácticas
       ansible.builtin.git:
@@ -50,13 +65,16 @@
       become: yes
       become_user: "{{ ansible_user }}"
 
-    - name: Asegurar permisos correctos en la carpeta del proyecto
-      ansible.builtin.file:
-        path: "/home/{{ ansible_user }}/devopspractice"
+    - name: Personalizar index.html según el servidor
+      ansible.builtin.copy:
+        content: "<h1>Hola desde el {{ inventory_hostname }}</h1>"
+        dest: "/home/{{ ansible_user }}/devopspractice/index.html"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
-        state: directory
-        recurse: yes
-      become: yes 
-      environment:
-        GIT_TERMINAL_PROMPT: 0
+        mode: '0644'
+
+    - name: Levantar la infraestructura con Docker Compose
+      community.docker.docker_compose_v2:
+        project_src: "/home/{{ ansible_user }}/devopspractice"
+        state: present
+        recreate: always
