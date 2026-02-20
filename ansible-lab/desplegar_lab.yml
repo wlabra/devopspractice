@@ -47,5 +47,15 @@
         version: main # Especificar la rama ayuda a la idempotencia
         force: true
         accept_hostkey: true
+      become: true
+      become_user: "{{ ansible_user }}"
+
+    - name: Asegurar que el dueño de la carpeta sea el usuario correcto
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/devopspractice"
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        recurse: true
+      become: true
       environment:
         GIT_TERMINAL_PROMPT: 0
