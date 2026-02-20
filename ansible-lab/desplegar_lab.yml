@@ -41,21 +41,22 @@
         append: true
 
     - name: Clonar mi repositorio de prácticas
-      ansible.builtin.git: # <--- FQCN
+      ansible.builtin.git:
         repo: 'https://github.com/wlabra/devopspractice.git'
         dest: "/home/{{ ansible_user }}/devopspractice"
-        version: main # Especificar la rama ayuda a la idempotencia
+        version: main
         force: true
         accept_hostkey: true
-      become: true
+      become: yes
       become_user: "{{ ansible_user }}"
 
-    - name: Asegurar que el dueño de la carpeta sea el usuario correcto
+    - name: Asegurar permisos correctos en la carpeta del proyecto
       ansible.builtin.file:
         path: "/home/{{ ansible_user }}/devopspractice"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
-        recurse: true
-      become: true
+        state: directory
+        recurse: yes
+      become: yes 
       environment:
         GIT_TERMINAL_PROMPT: 0
