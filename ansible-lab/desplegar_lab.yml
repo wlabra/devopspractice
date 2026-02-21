@@ -28,7 +28,7 @@
 
     - name: Crear carpeta para certificados SSL
       ansible.builtin.file:
-        path:"/home/{{ ansible_user }}/devopspractice/nginx/certs"
+        path: "/home/{{ ansible_user }}/devopspractice/nginx/certs"
         state: directory
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
