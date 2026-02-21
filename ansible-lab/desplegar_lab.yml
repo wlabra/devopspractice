@@ -26,6 +26,26 @@
           - python3-docker # Necesario para que Ansible hable con Docker
         state: present
 
+    - name: Crear carpeta para certificados SSL
+      ansible.builtin.file:
+        path:"/home/{{ ansible_user }}/devopspractice/nginx/certs"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+    
+    - name: Generar certificado SSL autofirmado
+      ansible.builtin.command:
+        cmd: >
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048
+          -keyout /home/{{ ansible_user }}/devopspractice/nginx/certs/nginx.key
+          -out /home/{{ ansible_user }}/devopspractice/nginx/certs/nginx.crt
+          -subj "/C=CL/ST=STGO/L=Santiago/O=DevOpsLab/CN=devops.local"
+        creates: "/home/{{ ansible_user }}/devops/practice/nginx/certs/nginx.crt"
+      become: true
+      become_user: "{{ ansible_user }}"
+
+
     - name: Descargar script de instalación de Docker
       ansible.builtin.get_url:
         url: https://get.docker.com
